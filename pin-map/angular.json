@@ -26,8 +26,7 @@
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
             ],
-            "scripts": [],
-            "es5BrowserSupport": true
+            "scripts": []
           },
           "configurations": {
             "production": {
@@ -134,5 +133,8 @@
       }
     }
   },
-  "defaultProject": "pin-map"
+  "defaultProject": "pin-map",
+  "cli": {
+    "analytics": "cafeaad8-ea85-4f0a-86ae-e0e623f74a20"
+  }
 }

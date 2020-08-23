@@ -8,6 +8,7 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'; // <== add the imports!
+import { AgmCoreModule } from '@agm/core';
 
 import { FormCreatorComponent } from './form-creator/form-creator.component';
 import { LoadFormComponent } from './load-form/load-form.component';
@@ -26,7 +27,11 @@ import { LoadFormComponent } from './load-form/load-form.component';
     AppRoutingModule,
     BsDropdownModule.forRoot(),
     TooltipModule.forRoot(),
-    ModalModule.forRoot()
+    ModalModule.forRoot(),
+    AgmCoreModule.forRoot({
+      apiKey: 'AIzaSyBSFuScy4OqVOvWKhVfeIC_EBwQRZnrSjw',
+      libraries: ['places']   
+   })
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone, QueryList, ViewChildren } from '@angular/core';
+import { MapsAPILoader, AgmMarker } from '@agm/core';
+//import {MouseEvent} from "@agm/core";
 import { FormGenerator } from './../services/formGenerator/formGenerator.interface'
 
 @Component({
@@ -9,20 +11,95 @@ import { FormGenerator } from './../services/formGenerator/formGenerator.interfa
 export class LoadFormComponent implements OnInit {
   formLoaded: FormGenerator[];
   form: any[]
-  constructor() {
+
+  title: string = 'AGM project';
+  latitude: number;
+  longitude: number;
+  zoom: number;
+  address: string;
+  private geoCoder;
+
+  @ViewChildren('search') searchElementRef: QueryList<ElementRef>
+  //public searchElementRef: ElementRef;
+  constructor(
+    private mapsAPILoader: MapsAPILoader,
+    private ngZone: NgZone
+  ) {
     this.formLoaded = [] as FormGenerator[]
     //this.formLoaded = [{fieldType:"Text",fieldName:"Nombre aqui",fieldPlaceholder:"kml",fieldDefaultValue:"Eduardo", fieldRequired:true}];
     //this.formLoaded.push()
     this.form = [] as any[];
   }
 
-  ngOnInit() {
-    console.log('formLoaded, ', this.formLoaded)
+  ngAfterViewInit() {
+    this.searchElementRef.toArray()
+    //load Places Autocomplete
+    this.mapsAPILoader.load().then(() => {
+      this.setCurrentLocation();
+      this.geoCoder = new google.maps.Geocoder;
+      console.log('element: ', this.searchElementRef)
+      let autocomplete = new google.maps.places.Autocomplete(this.searchElementRef['_results'][0].nativeElement);
+      autocomplete.addListener("place_changed", () => {
+        this.ngZone.run(() => {
+          //get the place result
+          let place: google.maps.places.PlaceResult = autocomplete.getPlace();
 
+          //verify result
+          if (place.geometry === undefined || place.geometry === null) {
+            return;
+          }
+
+          //set latitude, longitude and zoom
+          this.latitude = place.geometry.location.lat();
+          this.longitude = place.geometry.location.lng();
+          this.zoom = 12;
+        });
+      });
+    });
+  }
+
+  // Get Current Location Coordinates
+  private setCurrentLocation() {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        this.latitude = position.coords.latitude;
+        this.longitude = position.coords.longitude;
+        this.zoom = 8;
+        this.getAddress(this.latitude, this.longitude);
+      });
+    }
+  }
+
+
+  markerDragEnd($event: any) {
+    console.log('evnets: ', $event.latLng.lat());
+    this.latitude = $event.latLng.lat();
+    this.longitude = $event.latLng.lng();
+    this.getAddress(this.latitude, this.longitude);
+  }
+
+  getAddress(latitude, longitude) {
+    console.log('coords: ', latitude, longitude)
+    this.geoCoder.geocode({ 'location': { lat: latitude, lng: longitude } }, (results, status) => {
+      console.log(results);
+      console.log(status);
+      if (status === 'OK') {
+        if (results[0]) {
+          this.zoom = 12;
+          this.address = results[0].formatted_address;
+        } else {
+          window.alert('No results found');
+        }
+      } else {
+        window.alert('Geocoder failed due to: ' + status);
+      }
+
+    });
   }
 
   sendForm() {
     console.log('info: ', this.form)
+    this.setCurrentLocation()
   }
 
   fileJsonInput() {
