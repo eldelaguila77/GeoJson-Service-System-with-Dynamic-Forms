@@ -30,7 +30,7 @@ import { LoadFormComponent } from './load-form/load-form.component';
     ModalModule.forRoot(),
     AgmCoreModule.forRoot({
       apiKey: 'AIzaSyBSFuScy4OqVOvWKhVfeIC_EBwQRZnrSjw',
-      libraries: ['places']   
+      libraries: ['places', 'drawing']   
    })
   ],
   providers: [],

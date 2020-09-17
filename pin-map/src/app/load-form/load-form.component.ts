@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef, NgZone, QueryList, ViewChildr
 import { MapsAPILoader, AgmMarker } from '@agm/core';
 //import {MouseEvent} from "@agm/core";
 import { FormGenerator } from './../services/formGenerator/formGenerator.interface'
+import { GeoServiceService } from '../services/geoService/geo-service.service';
 
 @Component({
   selector: 'app-load-form',
@@ -18,88 +19,85 @@ export class LoadFormComponent implements OnInit {
   zoom: number;
   address: string;
   private geoCoder;
-
+  pruebaItems: {title: String, latitude: Number, longitude: Number, zoom: Number, address: String}[]
   @ViewChildren('search') searchElementRef: QueryList<ElementRef>
   //public searchElementRef: ElementRef;
   constructor(
     private mapsAPILoader: MapsAPILoader,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private geoService: GeoServiceService
   ) {
     this.formLoaded = [] as FormGenerator[]
-    //this.formLoaded = [{fieldType:"Text",fieldName:"Nombre aqui",fieldPlaceholder:"kml",fieldDefaultValue:"Eduardo", fieldRequired:true}];
-    //this.formLoaded.push()
     this.form = [] as any[];
+
+    this.pruebaItems = [{},{}]  as  {title: String, latitude: Number, longitude: Number, zoom: Number, address: String}[]
   }
+
+  ngOnInit() {}
 
   ngAfterViewInit() {
     this.searchElementRef.toArray()
-    //load Places Autocomplete
-    this.mapsAPILoader.load().then(() => {
-      this.setCurrentLocation();
-      this.geoCoder = new google.maps.Geocoder;
-      console.log('element: ', this.searchElementRef)
-      let autocomplete = new google.maps.places.Autocomplete(this.searchElementRef['_results'][0].nativeElement);
-      autocomplete.addListener("place_changed", () => {
-        this.ngZone.run(() => {
-          //get the place result
-          let place: google.maps.places.PlaceResult = autocomplete.getPlace();
-
-          //verify result
-          if (place.geometry === undefined || place.geometry === null) {
-            return;
-          }
-
-          //set latitude, longitude and zoom
-          this.latitude = place.geometry.location.lat();
-          this.longitude = place.geometry.location.lng();
-          this.zoom = 12;
-        });
-      });
-    });
-  }
-
-  // Get Current Location Coordinates
-  private setCurrentLocation() {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        this.latitude = position.coords.latitude;
-        this.longitude = position.coords.longitude;
-        this.zoom = 8;
-        this.getAddress(this.latitude, this.longitude);
-      });
+    for(let j = 0; j < this.pruebaItems.length; j++) {
+      this.initGeoServiceCatchCoords(j)
     }
   }
 
-
-  markerDragEnd($event: any) {
-    console.log('evnets: ', $event.latLng.lat());
-    this.latitude = $event.latLng.lat();
-    this.longitude = $event.latLng.lng();
-    this.getAddress(this.latitude, this.longitude);
+  initGeoServiceCatchCoords(index) {
+    this.geoService.setCurrentLocation()
+    .then((geoCoords: any) => {
+      if(geoCoords && geoCoords.lat) {
+        this.pruebaItems[index].latitude = geoCoords.lat;
+        this.pruebaItems[index].longitude = geoCoords.lng;
+        this.pruebaItems[index].zoom = geoCoords.zoom;
+        this.pruebaItems[index].address = geoCoords.address;
+      }
+      return geoCoords
+    })  .then(async () => {
+      this.geoService.initPlace().then(() => {
+        let autocomplete = new google.maps.places.Autocomplete(this.searchElementRef['_results'][index].nativeElement);
+        autocomplete.addListener("place_changed", () => {
+          this.ngZone.run(() => {
+            let place: google.maps.places.PlaceResult = autocomplete.getPlace();
+            this.pruebaItems[index].latitude = place.geometry.location.lat();
+            this.pruebaItems[index].longitude = place.geometry.location.lng();
+            this.pruebaItems[index].zoom = 12;
+            this.geoService.getAddressPromise(this.pruebaItems[index].latitude, this.pruebaItems[index].longitude).then((address) => {
+              this.address = address['formatted_address']
+              this.pruebaItems[index].address = address['formatted_address']
+              console.log('address on search: ', address['formatted_address'])
+            })
+          })
+        })
+      })
+    })
   }
 
-  getAddress(latitude, longitude) {
-    console.log('coords: ', latitude, longitude)
-    this.geoCoder.geocode({ 'location': { lat: latitude, lng: longitude } }, (results, status) => {
-      console.log(results);
-      console.log(status);
-      if (status === 'OK') {
-        if (results[0]) {
-          this.zoom = 12;
-          this.address = results[0].formatted_address;
-        } else {
-          window.alert('No results found');
-        }
-      } else {
-        window.alert('Geocoder failed due to: ' + status);
-      }
+  dragPin($event: any, index) {
+    this.geoService.markerDragEnd($event).then((data) => {
+      this.pruebaItems[index].latitude = data.lat;
+      this.pruebaItems[index].longitude = data.lng;
+      this.pruebaItems[index].zoom = data.zoom;
+      this.pruebaItems[index].address = data.address
+    })
+  }
 
+  onMapReady(map) {
+    const drawingManager = this.geoService.initDrawingManager(map);
+    google.maps.event.addListener(drawingManager, 'overlaycomplete', (event) => {
+      console.log('poligono', event)
+      // Polygon drawn
+      if (event.type === google.maps.drawing.OverlayType.POLYGON) {
+        //this is the coordinate, you can assign it to a variable or pass into another function.
+           //alert(event.overlay.getPath().getArray());
+           console.log('coords: ', event.overlay.getPath().getArray()[0].lat())
+      }
     });
   }
 
+  
+
   sendForm() {
     console.log('info: ', this.form)
-    this.setCurrentLocation()
   }
 
   fileJsonInput() {
