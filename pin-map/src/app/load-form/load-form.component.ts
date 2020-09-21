@@ -133,6 +133,7 @@ export class LoadFormComponent implements OnInit {
           this.form.push({ carga : {[field['fieldName']] : field['fieldDefaultValue']}})   
           //Object.assign(this.form, ...Object.keys(field).map(k => ({[field['fieldName']]: field['fieldDefaultValue']})));
         }
+        console.log('formLoaded: ', this.formLoaded)
         console.log('form: ', this.form)
       }
       fr.readAsText(file);

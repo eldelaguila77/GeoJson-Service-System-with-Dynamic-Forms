@@ -23,7 +23,6 @@ export class FormGeneratorService {
       'Number',
       'Password',
       'Textarea',
-      'CaptureGeo',
       'GeoPolygon'
     ] as string[]
   }

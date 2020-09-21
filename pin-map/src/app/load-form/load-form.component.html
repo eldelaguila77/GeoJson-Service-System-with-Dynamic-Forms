@@ -20,9 +20,14 @@
       <form #formForm="ngForm" (ngSubmit)="sendForm()">
           
         <div *ngFor="let field of formLoaded; let i = index">
-          <div class="form-group">
+          <div class="form-group" *ngIf="field.fieldType == 'Text'">
             <label [for]="field.fieldName">{{field.fieldLabel}}</label>
-            <input [type]="field.fieldType" class="form-control" [id]="field.fieldName" [(ngModel)]="form[i].carga[field.fieldName]" [name]="form[i].carga[field.fieldName]" [required]="field.fieldRequired">
+            <input [type]="'text'" class="form-control" [id]="field.fieldName" [(ngModel)]="form[i].carga[field.fieldName]" [name]="form[i].carga[field.fieldName]" [required]="field.fieldRequired">
+          </div>
+
+          <div class="form-group" *ngIf="field.fieldType == 'Email'">
+            <label [for]="field.fieldName">{{field.fieldLabel}}</label>
+            <input [type]="'email'" class="form-control" [id]="field.fieldName" [(ngModel)]="form[i].carga[field.fieldName]" [name]="form[i].carga[field.fieldName]" [required]="field.fieldRequired">
           </div>
         
         </div>
