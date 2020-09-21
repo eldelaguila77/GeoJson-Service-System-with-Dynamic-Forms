@@ -6,6 +6,9 @@ export interface FormGenerator {
     fieldRequired: boolean|null;
     fieldLabel: string|null,
     geoJson: featureGeoJSON
+    optionsDrop?: OptsDrop[];
+    optionsRadio?: OptsRadio[];
+    optionsCheck?: OptsCheckbox[];
 }
 
 export interface featureGeoJSON {
@@ -20,4 +23,24 @@ export interface featureGeoJSON {
       name: string;
       address: string;
     }
+}
+
+export interface OptsDrop {
+  label?: string;
+  value?: any;
+  default?: any;
+}
+
+export interface OptsRadio {
+  label?: string;
+  value?: any;
+  default?: any;
+  name?: string;
+}
+
+export interface OptsCheckbox {
+  typeOpt?: string;
+  label?: string;
+  val?: any;
+  preselected?: any;
 }

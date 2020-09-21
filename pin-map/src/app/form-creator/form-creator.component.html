@@ -1,43 +1,143 @@
 <div class="container">
   <div class="row">
     <div class="col-sm"></div>
-    <div class="col-sm">
-      <form #formCreatorForm="ngForm" (ngSubmit)="addField()">
+    <div class="col-12">
+      <form #formCreatorForm="ngForm" (ngSubmit)="addField(); defaultOptSelected = null;">
         <div class="form-group">
           <label for="fieldType">Tipo de campo</label>
-          <select class="form-control" id="fieldType" [(ngModel)]="formCreator.fieldType" name="fieldType" required ngControl="fieldType">
+          <select class="form-control" id="fieldType" [(ngModel)]="formCreator.fieldType" name="fieldType" required
+            ngControl="fieldType">
             <option *ngFor="let type of typeArray" [value]="type">{{type}}</option>
           </select>
+          <div class="row" style="padding-top: 10px;">
+            <div class="col-12">
+              <div class="row">
+                <div class="col-sm-2">
+                  <button
+                    *ngIf="formCreator.fieldType === 'Select' || formCreator.fieldType === 'Radio' || formCreator.fieldType === 'Checkbox'"
+                    type="button" class="btn btn-info" (click)="openModal(template)">Agregar Opciones</button>
+                </div>
+                <div class="col" *ngIf="optionsDropdown.length > 0; else tableCheck">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Opción</th>
+                        <th scope="col">Valor</th>
+                        <th scope="col-6">Opción por defecto</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let item of optionsDropdown; let i = index">
+                        <th scope="row" style="height: 15px;">{{i+1}}</th>
+                        <td>{{item.label}}</td>
+                        <td>{{item.value}}</td>
+                        <td>
+                          <div class="input-group-prepend">
+                            <div class="input-group-text">
+                              <input *ngIf="item.default === 'true'" type="checkbox" disabled="true" checked>
+                              <input *ngIf="item.default === 'false' || item.default === undefined" type="checkbox"
+                                disabled="true">
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <button type="button" class="btn btn-danger" (click)="delRow(item)">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
+                              xmlns="http://www.w3.org/2000/svg">
+                              <path
+                                d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                              <path fill-rule="evenodd"
+                                d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <ng-template #tableCheck>
+                  <div class="col" *ngIf="optsCheckbox.length > 0">
+                    <table class="table table-striped">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">Tipo</th>
+                          <th scope="col">Opción</th>
+                          <th scope="col">Valor</th>
+                          <th scope="col-6">Preselección</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let item of optsCheckbox; let i = index">
+                          <th scope="row" style="height: 15px;">{{i+1}}</th>
+                          <td>{{item.typeOpt}}</td>
+                          <td>{{item.label}}</td>
+                          <td>{{item.val}}</td>
+                          <td>
+                            <span *ngIf="item.typeOpt === 'BASICO' || item.typeOpt === 'BOOLEAN'">N/A</span>
+                            <span *ngIf="item.typeOpt === 'PRESELECCION'">
+                              <span *ngIf="item.preselected === 'true'">Si</span>
+                              <span *ngIf="item.preselected === 'false'">No</span>
+                            </span>
+                          </td>
+                          <td>
+                            <button type="button" class="btn btn-danger" (click)="delRow(item)">
+                              <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                  d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                                <path fill-rule="evenodd"
+                                  d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                              </svg>
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="form-group">
           <label for="fieldLabel">Nombre de etiqueta</label>
-          <input type="text" class="form-control" id="fieldLabel" [(ngModel)]="formCreator.fieldLabel" name="fieldLabel" required ngControl="fieldLabel">
+          <input type="text" class="form-control" id="fieldLabel" [(ngModel)]="formCreator.fieldLabel" name="fieldLabel"
+            required ngControl="fieldLabel">
         </div>
         <div class="form-group">
           <label for="fieldName">Nombre del campo</label>
-          <input type="text" class="form-control" id="fieldName" [(ngModel)]="formCreator.fieldName" name="fieldName" required ngControl="fieldName">
+          <input type="text" class="form-control" id="fieldName" [(ngModel)]="formCreator.fieldName" name="fieldName"
+            required ngControl="fieldName">
         </div>
         <div class="form-group">
           <label for="fieldPlaceholder">Placeholder</label>
-          <input type="text" class="form-control" id="fieldPlaceholder" [(ngModel)]="formCreator.fieldPlaceholder" name="fieldPlaceholder" required ngControl="fieldPlaceholder">
+          <input type="text" class="form-control" id="fieldPlaceholder" [(ngModel)]="formCreator.fieldPlaceholder"
+            name="fieldPlaceholder" required ngControl="fieldPlaceholder">
         </div>
-        <div class="form-group">
+        <div class="form-group" *ngIf="formCreator.fieldType !== 'Select' && formCreator.fieldType !== 'Radio' && formCreator.fieldType !== 'Checkbox'
+        && formCreator.fieldType !== 'File'">
           <label for="fieldDefaultValue">Valor por defecto</label>
-          <input type="text" class="form-control" id="fieldDefaultValue" [(ngModel)]="formCreator.fieldDefaultValue" name="fieldDefaultValue" required ngControl="fieldDefaultValue">
+          <input type="text" class="form-control" id="fieldDefaultValue" [(ngModel)]="formCreator.fieldDefaultValue"
+            name="fieldDefaultValue" required ngControl="fieldDefaultValue">
         </div>
         <fieldset class="form-group">
           <div class="row">
             <legend class="col-form-label col-sm pt-0">¿Requerido?</legend>
-            <br/>
+            <br />
             <div class="col-sm">
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="gridRadios" id="requiredTrue" value="true" [(ngModel)]="formCreator.fieldRequired" name="fieldRequired" required ngControl="fieldRequired">
+                <input class="form-check-input" type="radio" name="gridRadios" id="requiredTrue" value="true"
+                  [(ngModel)]="formCreator.fieldRequired" name="fieldRequired" required ngControl="fieldRequired">
                 <label class="form-check-label" for="requiredTrue">
                   Sí
                 </label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="gridRadios" id="requiredFalse" value="false" [(ngModel)]="formCreator.fieldRequired" name="fieldRequired" required ngControl="fieldRequired">
+                <input class="form-check-input" type="radio" name="gridRadios" id="requiredFalse" value="false"
+                  [(ngModel)]="formCreator.fieldRequired" name="fieldRequired" required ngControl="fieldRequired">
                 <label class="form-check-label" for="requiredFalse">
                   No
                 </label>
@@ -69,18 +169,113 @@
             <td>{{item.fieldType}}</td>
             <td>
               <button type="button" class="btn btn-danger">
-                <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                  <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                <svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-trash" fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                  <path fill-rule="evenodd"
+                    d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
                 </svg>
               </button>
             </td>
           </tr>
         </tbody>
       </table>
-      <button type="button" class="btn btn-info" 
-        (click)="downloadTemplate()">Descargar plantilla</button>
+      <button type="button" class="btn btn-info" (click)="downloadTemplate()">Descargar plantilla</button>
     </div>
     <div class="col-sm col-md"></div>
   </div>
 </div>
+
+
+<ng-template #template>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Agregar Opción</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div *ngIf="formCreator.fieldType === 'Select' || formCreator.fieldType === 'Radio'; else checkbox">
+    <div class="modal-body">
+      <form [formGroup]="formDropdown">
+        <div class="form-group">
+          <label for="fieldLabel">Opción</label>
+          <input type="text" class="form-control" id="fieldLabel" formControlName="option">
+        </div>
+        <div class="form-group">
+          <label for="fieldLabel">Valor</label>
+          <input type="text" class="form-control" id="fieldLabel" formControlName="val">
+        </div>
+        <div class="row" *ngIf="defaultOptSelected === null || defaultOptSelected === 'false'; else message">
+          <div class="col-12">
+            <legend class="col-form-label">¿Convertir a valor seleccionado por defecto?</legend>
+            <div class="row" style="padding-left: 16px;">
+              <div class="form-check" style="padding-right: 10px;">
+                <input [disabled]="defaultOptSelected === 'true'" class="form-check-input" type="radio"
+                  name="defaultOpt" value="{{true}}" formControlName="defaultOpt">
+                <label class="form-check-label" for="requiredTrue">Sí</label>
+              </div>
+              <div class="form-check">
+                <input [disabled]="defaultOptSelected === 'true'" class="form-check-input" type="radio"
+                  name="defaultOpt" value="{{false}}" formControlName="defaultOpt">
+                <label class="form-check-label" for="requiredFalse">No</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ng-template #message>
+          <p>Ya existe una opción seleccionada como valor por defecto</p>
+        </ng-template>
+      </form>
+      <div *ngIf="alert" class="alert alert-danger" role="alert">
+        El nombre o valor de la opcion ya existe, verifique!
+      </div>
+    </div>
+  </div>
+
+  <ng-template #checkbox>
+    <div class="modal-body" [formGroup]="formCheck">
+      <div class="form-group">
+        <label>Tipo de campo</label>
+        <select class="form-control" id="fieldType" formControlName="type" (change)="changeOpt()">
+          <option *ngFor="let type of optsCheckDrop" [value]="type.value">{{type.label}}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="fieldLabel">Opción</label>
+        <input type="text" class="form-control" formControlName="opt">
+      </div>
+
+      <div class="form-group" *ngIf="formCheck.controls.type.value !== 'BOOLEAN'">
+        <label for="fieldLabel">Valor</label>
+        <input type="text" class="form-control" formControlName="value">
+      </div>
+
+      <div class="row" *ngIf="formCheck.controls.type.value === 'PRESELECCION'">
+        <div class="col-12">
+          <legend class="col-form-label">¿Convertir a valor preseleccionado?</legend>
+          <div class="row" style="padding-left: 16px;">
+            <div class="form-check" style="padding-right: 10px;">
+              <input class="form-check-input" type="radio" name="preselectedValue" value="{{true}}"
+                formControlName="preselectedValue">
+              <label class="form-check-label" for="requiredTrue">Sí</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="preselectedValue" value="{{false}}"
+                formControlName="preselectedValue">
+              <label class="form-check-label" for="requiredFalse">No</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </ng-template>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="addOption()"
+      [disabled]="!formDropdown.valid && !formCheck.valid">Agregar</button>
+  </div>
+
+</ng-template>
