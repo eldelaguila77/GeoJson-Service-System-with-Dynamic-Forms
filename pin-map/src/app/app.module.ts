@@ -12,6 +12,8 @@ import { AgmCoreModule } from '@agm/core';
 
 import { FormCreatorComponent } from './form-creator/form-creator.component';
 import { LoadFormComponent } from './load-form/load-form.component';
+import { AngularFireModule } from '@angular/fire';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -31,7 +33,8 @@ import { LoadFormComponent } from './load-form/load-form.component';
     AgmCoreModule.forRoot({
       apiKey: 'AIzaSyBSFuScy4OqVOvWKhVfeIC_EBwQRZnrSjw',
       libraries: ['places', 'drawing']   
-   })
+   }),
+   AngularFireModule.initializeApp(environment.firebase)
   ],
   providers: [],
   bootstrap: [AppComponent]

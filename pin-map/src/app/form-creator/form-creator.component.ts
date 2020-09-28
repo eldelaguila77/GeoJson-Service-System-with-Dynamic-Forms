@@ -3,6 +3,7 @@ import { FormGeneratorService } from '../services/formGenerator/form-generator.s
 import { FormGenerator, OptsDrop, OptsRadio, OptsCheckbox } from '../services/formGenerator/formGenerator.interface';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FirestoreService } from '../services/firestore/firestore.service'
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -29,7 +30,8 @@ export class FormCreatorComponent implements OnInit, OnDestroy {
 
   constructor(
     private formGeneratorService: FormGeneratorService,
-    private readonly bsModalService: BsModalService
+    private readonly bsModalService: BsModalService,
+    private firestoreService: FirestoreService
   ) {
     this.formCreator = {} as FormGenerator;
     this.form = [] as FormGenerator[];
@@ -62,6 +64,11 @@ export class FormCreatorComponent implements OnInit, OnDestroy {
   // loadForm() {
   //   console.log('formulario: ', this.form)
   // }
+
+  sendToFirebase() {
+    const send = this.firestoreService.create('prueba', {form: this.form})
+    console.log('formulario enviado', send)
+  }
 
   downloadTemplate() {
     const dlAnchorElem = document.createElement('a');

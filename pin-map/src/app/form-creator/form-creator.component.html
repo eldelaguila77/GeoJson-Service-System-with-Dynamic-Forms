@@ -147,6 +147,8 @@
         </fieldset>
         <button type="submit" [disabled]="!formCreatorForm.valid" class="btn btn-primary">Submit</button>
       </form>
+      
+      <button type="button" class="btn btn-primary" (click)="sendToFirebase()">Enviar a firebase</button>
     </div>
     <div class="col-sm"></div>
   </div>
