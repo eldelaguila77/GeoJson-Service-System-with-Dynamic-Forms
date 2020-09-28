@@ -1,4 +1,5 @@
 export interface FormGenerator {
+    form?: string;
     fieldType: string|null;
     fieldName: string|null;
     fieldPlaceholder: string|null;
