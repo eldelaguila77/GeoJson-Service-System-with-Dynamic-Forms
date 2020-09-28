@@ -5,26 +5,32 @@ export interface FormGenerator {
     fieldPlaceholder: string|null;
     fieldDefaultValue: string|null;
     fieldRequired: boolean|null;
-    fieldLabel: string|null,
-    geoJson: featureGeoJSON
+    fieldLabel: string|null;
+    geoJson: any;
     optionsDrop?: OptsDrop[];
     optionsRadio?: OptsRadio[];
     optionsCheck?: OptsCheckbox[];
 }
 
-export interface featureGeoJSON {
+export interface Payload {
+  fieldName: string;
+  value: any;
+  geoJson?: FeatureGeoJSON
+}
+
+export interface FeatureGeoJSON {
     type: string;
     geometry: {
       type: string;
-      coordinates: [
-        [{lng: number, lat: number, alt: number}]
-      ]
+      coordinates: {lng: number, lat: number, alt?: number}[]
     };
     properties: {
       name: string;
       address: string;
     }
 }
+
+export interface OptLocation { title?: string, latitude?: number, longitude?: number, zoom?: number, address?: string, geoPolygon?: FeatureGeoJSON }
 
 export interface OptsDrop {
   label?: string;
