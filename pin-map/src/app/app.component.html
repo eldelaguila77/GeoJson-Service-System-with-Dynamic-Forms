@@ -6,6 +6,8 @@
   </a>
   <button type="button" class="btn btn-info" 
         (click)="openModal(template)">Create template modal</button>
+  <button [hidden]="!user" type="button" class="btn btn-danger" 
+        (click)="logout()">Cerrar sesión</button>
 </nav>
 
 

@@ -3,6 +3,9 @@ import { MapsAPILoader, AgmMarker } from '@agm/core';
 // import {MouseEvent} from "@agm/core";
 import { FormGenerator, FeatureGeoJSON, OptLocation, Payload } from './../services/formGenerator/formGenerator.interface'
 import { GeoServiceService } from '../services/geoService/geo-service.service';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { User } from 'firebase';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-load-form',
@@ -24,12 +27,15 @@ export class LoadFormComponent implements OnInit, AfterViewInit, OnChanges {
   geocordsGlobal: any;
   totalPositions: number;
   payload: Payload[]
+  user: User
   @ViewChildren('search') searchElementRef: QueryList<ElementRef>
   // public searchElementRef: ElementRef;
   constructor(
     private mapsAPILoader: MapsAPILoader,
     private ngZone: NgZone,
-    private geoService: GeoServiceService
+    private geoService: GeoServiceService,
+    private afAuth: AngularFireAuth,
+    private router: Router,
   ) {
     this.formLoaded = [] as FormGenerator[]
     this.form = [] as any[];
@@ -39,7 +45,16 @@ export class LoadFormComponent implements OnInit, AfterViewInit, OnChanges {
     this.payload = [] as Payload[]
   }
 
-  ngOnInit() { }
+  ngOnInit() {
+    this.afAuth.user.subscribe(user => {
+      if (user){
+        console.log('user1: ', user)
+        this.user = user;
+      } else {
+        this.router.navigate(['/login']);
+      }
+    })
+  }
 
   ngAfterViewInit() {
    
@@ -166,11 +181,29 @@ export class LoadFormComponent implements OnInit, AfterViewInit, OnChanges {
         const objKey = Object.keys(this.form[i].carga)
         console.log('objKey: ', objKey)
         if(item.fieldName.toLowerCase() == objKey.toString().toLowerCase()) {
+          
+
+          this.pruebaItems.forEach((land, index) => {
+            if ( land.title.toLowerCase() ==  item.fieldName.toLowerCase()) {
+              this.payload[objKey.toString()] = this.payload['geoJSON'] = this.pruebaItems[index]?.geoPolygon;
+            } else {
+              this.payload[objKey.toString()] = Object.values(this.form[i].carga)[0];
+            }
+          })
+
+
+          /*if (this.pruebaItems[i]?.title.toLowerCase() == ) {
+            this.payload[objKey.toString()] = this.payload['geoJSON'] = this.pruebaItems[i]?.geoPolygon;
+          } else {
+            this.payload[objKey.toString()] = Object.values(this.form[i].carga)[0];
+          }
+          console.log('payload: ', this.payload)*/
+        } /*else {
           this.payload[objKey.toString()] = Object.values(this.form[i].carga)[0];
-          console.log('payload: ', this.payload)
-        }
+        }*/
       }
     }
+    console.log('payload: ', this.payload)
   }
 
   async fileJsonInput() {

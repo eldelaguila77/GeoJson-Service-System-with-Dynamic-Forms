@@ -13,13 +13,17 @@ import { AgmCoreModule } from '@agm/core';
 import { FormCreatorComponent } from './form-creator/form-creator.component';
 import { LoadFormComponent } from './load-form/load-form.component';
 import { AngularFireModule } from '@angular/fire';
+import { AngularFireAuthModule } from '@angular/fire/auth';
 import { environment } from '../environments/environment';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { LoginComponent } from './login/login.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     FormCreatorComponent,
-    LoadFormComponent
+    LoadFormComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
@@ -34,7 +38,9 @@ import { environment } from '../environments/environment';
       apiKey: 'AIzaSyBSFuScy4OqVOvWKhVfeIC_EBwQRZnrSjw',
       libraries: ['places', 'drawing']   
    }),
-   AngularFireModule.initializeApp(environment.firebase)
+   AngularFireModule.initializeApp(environment.firebase),
+   AngularFirestoreModule,
+   AngularFireAuthModule
   ],
   providers: [],
   bootstrap: [AppComponent]
