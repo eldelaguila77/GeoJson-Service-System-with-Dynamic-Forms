@@ -13,7 +13,8 @@ export class FirestoreService {
 
   //Crear
   public create(collection: string, data: any) {
-    return this.firestore.collection(`${collection}`).add(data);
+    console.log('data on service', data)
+    return this.firestore.collection(`${collection}`).add({answer : [...data]});
   }
   //Obtiene un registro
   public getCat(documentId: string) {

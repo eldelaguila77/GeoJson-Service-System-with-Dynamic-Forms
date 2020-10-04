@@ -4,6 +4,7 @@ import { MapsAPILoader, AgmMarker } from '@agm/core';
 import { FormGenerator, FeatureGeoJSON, OptLocation, Payload } from './../services/formGenerator/formGenerator.interface'
 import { GeoServiceService } from '../services/geoService/geo-service.service';
 import { AngularFireAuth } from '@angular/fire/auth';
+import { FirestoreService } from '../services/firestore/firestore.service'
 import { User } from 'firebase';
 import { Router } from '@angular/router';
 
@@ -36,6 +37,7 @@ export class LoadFormComponent implements OnInit, AfterViewInit, OnChanges {
     private geoService: GeoServiceService,
     private afAuth: AngularFireAuth,
     private router: Router,
+    private firestoreService: FirestoreService
   ) {
     this.formLoaded = [] as FormGenerator[]
     this.form = [] as any[];
@@ -172,38 +174,27 @@ export class LoadFormComponent implements OnInit, AfterViewInit, OnChanges {
 
 
   sendForm() {
-    console.log('info: ', this.form)
-    console.log('pruebaitems: ', this.pruebaItems)
-    console.log('formloaded: ', this.formLoaded)
     for(const item of this.formLoaded) {
-      for( let i = 0; i < this.form.length; i ++) {
-        console.log('preval: ', this.form[i])
-        const objKey = Object.keys(this.form[i].carga)
-        console.log('objKey: ', objKey)
-        if(item.fieldName.toLowerCase() == objKey.toString().toLowerCase()) {
-          
-
-          this.pruebaItems.forEach((land, index) => {
-            if ( land.title.toLowerCase() ==  item.fieldName.toLowerCase()) {
-              this.payload[objKey.toString()] = this.payload['geoJSON'] = this.pruebaItems[index]?.geoPolygon;
-            } else {
-              this.payload[objKey.toString()] = Object.values(this.form[i].carga)[0];
-            }
-          })
-
-
-          /*if (this.pruebaItems[i]?.title.toLowerCase() == ) {
-            this.payload[objKey.toString()] = this.payload['geoJSON'] = this.pruebaItems[i]?.geoPolygon;
-          } else {
-            this.payload[objKey.toString()] = Object.values(this.form[i].carga)[0];
-          }
-          console.log('payload: ', this.payload)*/
-        } /*else {
-          this.payload[objKey.toString()] = Object.values(this.form[i].carga)[0];
-        }*/
+      if( item.fieldType !== 'GeoPolygon'){
+        for( let i = 0; i < this.form.length; i ++) {
+          const objKey = Object.keys(this.form[i].carga)
+          console.log('preval: ', this.form[i])
+          this.payload[objKey.toString().toLowerCase()] = Object.values(this.form[i].carga)[0];
+        }
       }
+      
     }
+
+    this.pruebaItems.forEach((obj, index) => {
+      this.payload[obj.title.toString().toLowerCase()] = {geoJSON: obj};
+    })
+
+    this.payload['created_at'] = new Date();
+    this.payload['created_by'] = this.user.uid;
     console.log('payload: ', this.payload)
+    const send = this.firestoreService.create('answers', this.payload)
+    console.log('formulario enviado', send)
+
   }
 
   async fileJsonInput() {
