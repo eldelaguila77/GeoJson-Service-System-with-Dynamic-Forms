@@ -1,28 +1,32 @@
 <div class="container">
-  <div *ngIf="!flag" class="row" id="rowUploadFile">
-    <div class="card" style="width: 100%;">
-      <div class="card-body">
-        <h5 class="card-title">Suba su formato</h5>
-        <p class="card-text">Al subir su plantilla de formulario se le cargará y podrá rellenarlo.</p>
-        <form>
-          <div class="form-group">
-            <label for="fileJsonInput">Subir formulario</label>
-            <input type="file" class="form-control-file" id="fileJsonInput">
-          </div>
-        </form>
-        <button class="btn btn-primary" (click)="fileJsonInput()">Cargar</button>
-      </div>
+  <div class="d-flex justify-content-center" [hidden]="!flag">
+    <div class="spinner-grow text-danger" role="status" [hidden]="!flag">
+      <span class="sr-only">Loading...</span>
+    </div>
+    <div class="spinner-grow text-warning" role="status" [hidden]="!flag">
+      <span class="sr-only">Loading...</span>
+    </div>
+    <div class="spinner-grow text-info" role="status" [hidden]="!flag">
+      <span class="sr-only">Loading...</span>
     </div>
   </div>
-  <div class="row">
-    <div class="col-sm"></div>
-    <div class="col-sm">
-      <form #formForm="ngForm" (ngSubmit)="sendForm()">
+  <hr/>
+  <div [hidden]="!alertFlag" class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Plantilla creada.</strong>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="row" style="margin-top: 2em;" [hidden]="flag">
+    <div class="col-sm col-sm-2 col-md-2 col-lg-2"></div>
+    <div class="col-sm col-sm-8 col-md-8 col-lg-8">
+      <h3 style="text-align: center;">Formulario {{title}}</h3>
+      <form #formForm="ngForm" (ngSubmit)="sendForm(formForm)">
 
         <div *ngFor="let field of formLoaded; let i = index">
           <div class="form-group" *ngIf="field.fieldType == 'Select'">
             <label [for]="field.fieldName">{{field.fieldLabel}}</label>
-            <select class="form-control" [id]="field.fieldName" [(ngModel)]="form[i].carga[field.fieldName]" [name]="form[i].carga[field.fieldName]" [required]="field.fieldRequired"
+            <select class="form-control" [id]="field.fieldName" [(ngModel)]="form[i].carga[field.fieldName]" [ngModelOptions]="{standalone: true}" [name]="form[i].carga[field.fieldName]" [required]="field.fieldRequired"
             ngControl="form[i].carga[field.fieldName]">
             <option *ngFor="let type of field.optionsDrop" [value]="type.value">{{type.label}}</option>
           </select>
@@ -34,7 +38,7 @@
               <br />
               <div class="form-group" *ngFor="let rad of field.optionsRadio">
                 <label [for]="field.fieldName">{{rad.label}}</label>
-                <input type="radio" class="form-control" [id]="rad.name" [(ngModel)]="form[i].carga[field.fieldName]" [value]="rad.value"
+                <input type="radio" class="form-control" [id]="rad.name" [(ngModel)]="form[i].carga[field.fieldName]" [ngModelOptions]="{standalone: true}" [value]="rad.value"
                 [name]="field.fieldName">
               </div>
             </div>
@@ -46,7 +50,7 @@
               <br />
               <div class="form-group" *ngFor="let c of field.optionsCheck">
                 <label [for]="field.fieldName">{{c.label}}</label>
-                <input type="checkbox" class="form-control" [id]="c.val" [name]="field.fieldName">
+                <input type="checkbox" class="form-control" [id]="c.val" [ngModelOptions]="{standalone: true}" [name]="field.fieldName">
               </div>
             </div>
           </fieldset>
@@ -54,47 +58,63 @@
           <div class="form-group" *ngIf="field.fieldType === 'File'">
             <label [for]="field.fieldName">{{field.fieldLabel}}</label>
             <input type="file" class="form-control" [id]="field.fieldName"
-            [name]="form[i].carga[field.fieldName]" [required]="field.fieldRequired">
+            [name]="form[i].carga[field.fieldName]" [required]="field.fieldRequired" [ngModelOptions]="{standalone: true}">
           </div>
 
           <div class="form-group" *ngIf="field.fieldType === 'Text'">
             <label [for]="field.fieldName">{{field.fieldLabel}}</label>
-            <input [type]="'text'" class="form-control" [id]="field.fieldName" [(ngModel)]="form[i].carga[field.fieldName]" [name]="form[i].carga[field.fieldName]" [required]="field.fieldRequired">
+            <input [type]="'text'" class="form-control" [id]="field.fieldName" [(ngModel)]="form[i].carga[field.fieldName]" [ngModelOptions]="{standalone: true}" [name]="form[i].carga[field.fieldName]" [required]="field.fieldRequired">
           </div>
 
           <div class="form-group" *ngIf="field.fieldType === 'Email'">
             <label [for]="field.fieldName">{{field.fieldLabel}}</label>
-            <input [type]="'email'" class="form-control" [id]="field.fieldName" [(ngModel)]="form[i].carga[field.fieldName]" [name]="form[i].carga[field.fieldName]" [required]="field.fieldRequired">
+            <input [type]="'email'" class="form-control" [id]="field.fieldName" [(ngModel)]="form[i].carga[field.fieldName]" [ngModelOptions]="{standalone: true}" [name]="form[i].carga[field.fieldName]" [required]="field.fieldRequired">
           </div>
 
-          <div class="container" *ngIf="field.fieldType === 'GeoPolygon'">
-
-            <h3>{{field.fieldLabel}} {{i}}</h3>
-  
-            <div class="form-group">
-              <label>Ingrese dirección</label>
-              <input type="text" class="form-control" (keydown.enter)="$event.preventDefault()" placeholder="Buscar lugar" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" #search>
+          <div class="card" *ngIf="field.fieldType === 'GeoPolygon'" style="margin-bottom: 2em;">
+            <div class="card-header">
+              {{field.fieldLabel}}
             </div>
-  
-            
-  
-            <div *ngFor="let p of pruebaItems; let j = index">
-              <div *ngIf="p.title == field.fieldLabel">
-                <agm-map [latitude]="field.geoJson?.latitude" [longitude]="field.geoJson?.longitude" [zoom]="field.geoJson?.zoom" (mapReady)="onMapReady($event, j)">
-                  <agm-marker [latitude]="field.geoJson?.latitude" [longitude]="field.geoJson?.longitude" [markerDraggable]="true"
-                    (dragEnd)="dragPin($event, j)"></agm-marker>
-                </agm-map>
-                <h5>Address: {{pruebaItems[j]?.address}}</h5>
-                <div>Latitude: {{pruebaItems[j]?.latitude}}</div>
-                <div>Longitude: {{pruebaItems[j]?.longitude}}</div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Ingrese dirección</label>
+                <input type="text" class="form-control" (keydown.enter)="$event.preventDefault()" placeholder="Buscar lugar" autocorrect="off" autocapitalize="off" spellcheck="off" type="text" #search>
+              </div>
+              <div *ngFor="let p of pruebaItems; let j = index">
+                <div *ngIf="p.title == field.fieldLabel">
+                  <agm-map [latitude]="field.geoJson?.latitude" [longitude]="field.geoJson?.longitude" [zoom]="field.geoJson?.zoom" (mapReady)="onMapReady($event, j)">
+                    <agm-marker [latitude]="field.geoJson?.latitude" [longitude]="field.geoJson?.longitude" [markerDraggable]="true"
+                      (dragEnd)="dragPin($event, j)"></agm-marker>
+                  </agm-map>
+                  <p class="card-text">Dirección: {{pruebaItems[j]?.address}}</p>
+                  <p class="card-text">Latitude: {{pruebaItems[j]?.latitude}}  Longitude: {{pruebaItems[j]?.longitude}}</p>
+                </div>
               </div>
             </div>
           </div>
 
         </div>
-        <button type="submit" [disabled]="!formForm.valid" class="btn btn-primary">Submit</button>
+
+        <div class="row">
+          <div class="col-sm">
+            <button type="submit" [disabled]="!formForm.valid" class="btn btn-primary btn-lg btn-block">Procesar</button>
+          </div>
+        </div>
+        <hr/>
+        <div class="row" [hidden]="!payload?.created_at" style="margin-bottom: 15%;">
+          <div class="col-sm col-md col-lg-4" style="margin-bottom: 3%;">
+            <button type="button" class="btn btn-info btn-lg" (click)="downloadForm()">Descargar</button>
+          </div>
+          <div class="col-sm col-md col-lg-4" style="margin-bottom: 3%;">
+            <button type="button" class="btn btn-info btn-lg" (click)="sendToFB()">Enviar a firebase</button>
+          </div>
+          <div class="col-sm col-md col-lg-4" style="margin-bottom: 3%;">
+            <button type="button" class="btn btn-info btn-lg" (click)="sendAndDownload(); ">Enviar y descargar</button>
+          </div>
+        </div>
+        
       </form>
     </div>
-    <div class="col-sm"></div>
+    <div class="col-sm col-sm-2 col-md-2 col-lg-2"></div>
   </div>
 </div>

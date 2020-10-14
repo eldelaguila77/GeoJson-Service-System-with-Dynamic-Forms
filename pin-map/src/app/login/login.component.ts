@@ -24,14 +24,14 @@ export class LoginComponent implements OnInit {
     this.afAuth.user.subscribe(user => {
       if (user) {
         this.ngZone.run(() => {
-          this.router.navigate(['/form-creator']);
+          this.router.navigate(['/home']);
         })
       }
     })
   }
   createUser() {
   this.afAuth.createUserWithEmailAndPassword(this.loginForm.value.email, this.loginForm.value.password).then(() => {
-     this.router.navigate(['/form-creator']);
+     this.router.navigate(['/home']);
    }).catch(response => {
      this.errorMessage = response.message;
    });
@@ -39,7 +39,7 @@ export class LoginComponent implements OnInit {
 
   signIn() { 
     this.afAuth.signInWithEmailAndPassword(this.loginForm.value.email, this.loginForm.value.password).then(() => {
-      this.router.navigate(['/form-creator']);
+      this.router.navigate(['/home']);
     }).catch(response => {
       this.errorMessage = response.message;
     });

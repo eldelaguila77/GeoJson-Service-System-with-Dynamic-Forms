@@ -12,17 +12,17 @@ export class FirestoreService {
   ) { }
 
   //Crear
-  public create(collection: string, data: any) {
+  public async create(collection: string, data: any) {
     console.log('data on service', data)
-    return this.firestore.collection(`${collection}`).add({answer : [...data]});
+    return await this.firestore.collection(`${collection}`).add(data);
   }
   //Obtiene un registro
   public getCat(documentId: string) {
     return this.firestore.collection('cats').doc(documentId).snapshotChanges();
   }
   //Obtiene todos los registros
-  public getCats() {
-    return this.firestore.collection('cats').snapshotChanges();
+  public getTemplates(userId: string) {
+    return this.firestore.collection('templates', ((ref) => ref.where('created_by', '==', userId))).get().toPromise();
   }
   //Actualiza un registro
   public updateCat(documentId: string, data: any) {

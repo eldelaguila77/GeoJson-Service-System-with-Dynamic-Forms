@@ -1,0 +1,36 @@
+<div class="jumbotron">
+    <h3>Cargar plantilla</h3>
+
+    <div *ngIf="!flag" class="row" id="rowUploadFile">
+        <div class="card" style="width: 80%; margin: 2em auto;">
+          <div class="card-body">
+            <h5 class="card-title">Suba su formato</h5>
+            <p class="card-text">Al subir su plantilla de formulario se le cargará y podrá rellenarlo.</p>
+            <form>
+              <div class="form-group">
+                <label for="fileJsonInput">Subir formulario</label>
+                <input type="file" class="form-control-file" id="fileJsonInput">
+              </div>
+            </form>
+            <button class="btn btn-primary" (click)="fileJsonInput()">Ingresar</button>
+          </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <h3 style="text-align: center;">Tomar una plantilla de Firebase</h3>
+    <div class="row">
+        <div *ngFor="let template of templates" class="col-sm col-sm-4 col-md-4 col-lg-4" style="margin-bottom: 1em;">
+            <div class="card">
+                <div class="card-header">
+                {{template.nameTemplate}}
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Creada el: {{template.created_at?.seconds * 1000 | date: 'dd-MM-yyyy'}}</p>
+                    <button class="btn btn-primary" (click)="openTemplateFb(template.formToSend, template.nameTemplate)">Ingresar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>

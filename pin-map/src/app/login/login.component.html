@@ -1,33 +1,42 @@
-<div class="example-container">
-    <span class="center">Login</span>
-    <ng-container *ngIf="errorMessage">
-      <span class="error">{{errorMessage}}</span>
-    </ng-container>
-   
-    <form [formGroup]="loginForm">
-      <div class="form-group">
-        <label for="title">Email*</label>
-        <input type="text" id="email" placeholder="email" class="form-control" formControlName="email" />
-        <span style="color:Red;"
-          *ngIf="loginForm.controls['email'].touched && loginForm.controls['email'].errors?.required">Email is
-          required.</span>
+<div class="container h-100">
+  <div class="d-flex justify-content-center h-100">
+    <div class="user_card">
+      <div class="d-flex justify-content-center">
+        <div class="brand_logo_container">
+          <img src="../../assets/img/logo-map.png" class="brand_logo" alt="Logo">
+        </div>
       </div>
-   
-      <div class="form-group">
-        <label for="description">Password*</label>
-        <input id="password" type="password" placeholder="Password" class="form-control" formControlName="password" />
-        <span style="color:Red;" *ngIf="loginForm.controls['password'].touched && loginForm.controls['password'].errors?.required">Password is
-          required.</span>
+      <div class="d-flex justify-content-center form_container">
+        <form [formGroup]="loginForm">
+          <div class="input-group mb-3">
+            <div class="input-group-append">
+              <span class="input-group-text"><i class="fas fa-user"></i></span>
+            </div>
+            <input type="email" id="email" placeholder="email" formControlName="email" class="form-control input_user" placeholder="Correo electrónico">
+            <br/>
+          </div>
+          
+          <span style="color:darkslateblue; font-weight: bold;"
+          *ngIf="loginForm.controls['email'].touched && loginForm.controls['email'].errors?.required">
+            Correo electrónico requerido
+          </span>
+          <div class="input-group mb-2">
+            <div class="input-group-append">
+              <span class="input-group-text"><i class="fas fa-key"></i></span>
+            </div>
+            <input id="password" type="password" placeholder="Contraseña" formControlName="password" class="form-control input_pass">
+          </div>
+          <span style="color:darkslateblue;" *ngIf="loginForm.controls['password'].touched && loginForm.controls['password'].errors?.required">
+            Contraseña requerida
+          </span>
+          <div class="d-flex justify-content-center mt-3 login_container">
+            <button type="button" name="button" class="btn login_btn" (click)="signIn()">Iniciar sesión</button>
+          </div>
+          <div class="d-flex justify-content-center mt-3 login_container">
+            <button type="button" name="button" class="btn register_btn" (click)="createUser()">Registrarme</button>
+          </div>
+        </form>
       </div>
-   
-      <div class="buttons-container center">
-        <button class="btn btn-primary" (click)="signIn()">
-          Log in
-        </button>
-        <button class="btn btn-success" (click)="createUser()">
-          Create Account
-        </button>
-      </div>
-    </form>
+    </div>
+  </div>
 </div>
-   

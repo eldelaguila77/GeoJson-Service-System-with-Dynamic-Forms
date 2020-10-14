@@ -6,7 +6,8 @@ import { GeoServiceService } from '../services/geoService/geo-service.service';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { FirestoreService } from '../services/firestore/firestore.service'
 import { User } from 'firebase';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-load-form',
@@ -17,7 +18,7 @@ export class LoadFormComponent implements OnInit, AfterViewInit, OnChanges {
   formLoaded: FormGenerator[];
   form: any[]
 
-  title: string = 'AGM project';
+  title: string;
   latitude: number;
   longitude: number;
   zoom: number;
@@ -29,6 +30,8 @@ export class LoadFormComponent implements OnInit, AfterViewInit, OnChanges {
   totalPositions: number;
   payload: Payload[]
   user: User
+  alertFlag: boolean;
+  formTrue: NgForm
   @ViewChildren('search') searchElementRef: QueryList<ElementRef>
   // public searchElementRef: ElementRef;
   constructor(
@@ -36,6 +39,7 @@ export class LoadFormComponent implements OnInit, AfterViewInit, OnChanges {
     private ngZone: NgZone,
     private geoService: GeoServiceService,
     private afAuth: AngularFireAuth,
+    private actRoute: ActivatedRoute,
     private router: Router,
     private firestoreService: FirestoreService
   ) {
@@ -45,6 +49,11 @@ export class LoadFormComponent implements OnInit, AfterViewInit, OnChanges {
     this.pruebaItems = [] as OptLocation[]
     this.totalPositions = 0;
     this.payload = [] as Payload[]
+    console.log('nuevo template: ', this.actRoute.snapshot.paramMap.get('template'))
+    const template = this.actRoute.snapshot.paramMap.get('template');
+    this.title = this.actRoute.snapshot.paramMap.get('name');
+    this.loadForm(template)
+    this.alertFlag = false;
   }
 
   ngOnInit() {
@@ -171,9 +180,44 @@ export class LoadFormComponent implements OnInit, AfterViewInit, OnChanges {
     });
   }
 
+  getGeoPolynos() {
+    this.searchElementRef.toArray()
+    console.log('index: ', this.pruebaItems)
+    for (let j = 0; j < this.pruebaItems.length; j++) {
+      this.initGeoServiceCatchCoords(j)
+    }
+  }
 
+  async loadForm(form: any) {
+    this.flag = true
+    let flagGeo = true;
+    for (let field of JSON.parse(form)) {
+      console.log('field', field);
+     
+      this.form.push({ carga: { [field.fieldName]: field.fieldDefaultValue ? field.fieldDefaultValue: field.fieldName } });
+      if(field.fieldType == 'GeoPolygon') {
+        flagGeo = true;
+        await this.returnCurrentLocation(field.fieldLabel);
+        this.formLoaded.push(Object.assign(field, {geoJson: this.geocordsGlobal}) as FormGenerator)
+      } else {
+        this.formLoaded.push(field as FormGenerator)
+      }
+    }
+    if(flagGeo) {
+      this.getGeoPolynos();
+      console.log('formLoaded: ', this.formLoaded)
+      console.log('form: ', this.form)
+      console.log('pruebaitems after form: ', this.pruebaItems)
+      this.totalPositions = this.pruebaItems?.length;
+    }
+    
+    this.flag = false;
+    
+  }
 
-  sendForm() {
+  sendForm(form: NgForm) {
+    this.formTrue = form;
+    console.log('payload before: ', this.payload)
     for(const item of this.formLoaded) {
       if( item.fieldType !== 'GeoPolygon'){
         for( let i = 0; i < this.form.length; i ++) {
@@ -192,73 +236,38 @@ export class LoadFormComponent implements OnInit, AfterViewInit, OnChanges {
     this.payload['created_at'] = new Date();
     this.payload['created_by'] = this.user.uid;
     console.log('payload: ', this.payload)
-    const send = this.firestoreService.create('answers', this.payload)
+
+    console.log('payload length: ', this.payload?.length)
+  }
+
+  sendToFB() {
+    const send = this.firestoreService.create('answers', {answer : [{...this.payload}], formName: this.title})
     console.log('formulario enviado', send)
-
+    this.alertFlag = true;
+    setTimeout(() => {
+      this.alertFlag = false;
+    }, 3000)
+    this.formTrue.reset()
   }
 
-  async fileJsonInput() {
-    this.flag = true;
-    let input, file, fr;
-
-    if (typeof FileReader !== 'function') {
-      alert("The file API isn't supported on this browser yet.");
-      return;
-    }
-
-    input = document.getElementById('fileJsonInput');
-    if (!input) {
-      alert("Um, couldn't find the fileinput element.");
-    }
-    else if (!input.files) {
-      alert("This browser doesn't seem to support the `files` property of file inputs.");
-    }
-    else if (!input.files[0]) {
-      alert("Please select a file before clicking 'Load'");
-    }
-    else {
-      file = input.files[0];
-      fr = new FileReader();
-      // fr.onload = receivedText;
-      fr.onload = async (e) => {
-        const preText = e.target.result;
-        // this.formLoaded = JSON.parse(preText)
-        for (let field of JSON.parse(preText)) {
-          console.log('field', field);
-         
-          // this.form.push(Object.keys({[field['fieldName']]: field['fieldDefaultValue']}))
-          // this.form.push(Object.keys(field).map(k => ({[field['fieldName']]: field['fieldDefaultValue']})))
-          this.form.push({ carga: { [field.fieldName]: field.fieldDefaultValue ? field.fieldDefaultValue: field.fieldName } });
-          // Object.assign(this.form, ...Object.keys(field).map(k => ({[field['fieldName']]: field['fieldDefaultValue']})));
-          if(field.fieldType == 'GeoPolygon') {
-            /*this.searchElementRef.toArray()
-            for (let j = 0; j < this.pruebaItems.length; j++) {
-              this.initGeoServiceCatchCoords(j)
-            }*/
-            await this.returnCurrentLocation(field.fieldLabel);
-            this.formLoaded.push(Object.assign(field, {geoJson: this.geocordsGlobal}) as FormGenerator)
-          } else {
-            this.formLoaded.push(field as FormGenerator)
-          }
-        }
-        
-        this.getGeoPolynos();
-        console.log('formLoaded: ', this.formLoaded)
-        console.log('form: ', this.form)
-        console.log('pruebaitems after form: ', this.pruebaItems)
-        this.totalPositions = this.pruebaItems?.length;
-      }
-      fr.readAsText(file);
-    }
-    console.log('file', file, fr);
+  downloadForm() {
+    const data = {answer: JSON.stringify(Object.assign({}, this.payload)), formName: this.title}
+    const dlAnchorElem = document.createElement('a');
+    document.body.appendChild(dlAnchorElem);
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(data));
+    dlAnchorElem.setAttribute('href', dataStr);
+    dlAnchorElem.setAttribute('download', 'response_' + this.title + '.json');
+    dlAnchorElem.click();
+    this.alertFlag = true;
+    setTimeout(() => {
+      this.alertFlag = false;
+    }, 3000)
+    this.formTrue.reset()
   }
 
-  getGeoPolynos() {
-    this.searchElementRef.toArray()
-    console.log('index: ', this.pruebaItems)
-    for (let j = 0; j < this.pruebaItems.length; j++) {
-      this.initGeoServiceCatchCoords(j)
-    }
+  sendAndDownload() {
+    this.sendToFB();
+    this.downloadForm();
   }
 
 }

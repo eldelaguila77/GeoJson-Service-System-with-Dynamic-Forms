@@ -2,6 +2,24 @@
   <div class="row">
     <div class="col-sm"></div>
     <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="form-group">
+            <label for="nametemplate">Nombre plantilla</label>
+            <input type="text" class="form-control" id="nametemplate" aria-describedby="spanNameTemplate" name="nameTemplate" [(ngModel)]="nameTemplate">
+            <small [hidden]="nameTemplate" id="spanNameTemplate" class="form-text text-muted">Falta nombre de plantilla</small>
+          </div>
+        </div>
+      </div>
+      <hr/>
+      <h3>Agregar un nuevo campo</h3>
+      <hr/>
+      <div [hidden]="!alertFlag" class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>Plantilla creada.</strong>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
       <form #formCreatorForm="ngForm" (ngSubmit)="addField(); defaultOptSelected = null;">
         <div class="form-group">
           <label for="fieldType">Tipo de campo</label>
@@ -121,7 +139,7 @@
         && formCreator.fieldType !== 'File'">
           <label for="fieldDefaultValue">Valor por defecto</label>
           <input type="text" class="form-control" id="fieldDefaultValue" [(ngModel)]="formCreator.fieldDefaultValue"
-            name="fieldDefaultValue" required ngControl="fieldDefaultValue">
+            name="fieldDefaultValue" ngControl="fieldDefaultValue">
         </div>
         <fieldset class="form-group" *ngIf="formCreator.fieldType !== 'Radio'  && formCreator.fieldType !== 'Checkbox'">
           <div class="row">
@@ -145,16 +163,16 @@
             </div>
           </div>
         </fieldset>
-        <button type="submit" [disabled]="!formCreatorForm.valid" class="btn btn-primary">Submit</button>
+        <button type="submit" [disabled]="!formCreatorForm.valid" class="btn btn-primary btn-lg">Agregar campo</button>
       </form>
       
-      <button type="button" class="btn btn-primary" (click)="sendToFirebase()">Enviar a firebase</button>
     </div>
     <div class="col-sm"></div>
   </div>
-  <div class="row">
-    <div class="col-sm col-md"></div>
-    <div class="col-sm col-md">
+  <hr/>
+  <div class="row" [hidden]="!form?.length">
+    <div class="col-sm col-md col-lg-3"></div>
+    <div class="col-sm col-md col-lg-6">
       <table class="table table-striped">
         <thead>
           <tr>
@@ -183,9 +201,19 @@
           </tr>
         </tbody>
       </table>
-      <button type="button" class="btn btn-info" (click)="downloadTemplate()">Descargar plantilla</button>
     </div>
-    <div class="col-sm col-md"></div>
+    <div class="col-sm col-md col-lg-3"></div>
+  </div>
+  <div class="row" [hidden]="!form?.length" style="margin-bottom: 15%;">
+    <div class="col-sm col-md col-lg-4">
+      <button type="button" class="btn btn-info btn-lg" [disabled]="!nameTemplate" (click)="downloadTemplate()">Descargar plantilla</button>
+    </div>
+    <div class="col-sm col-md col-lg-4">
+      <button type="button" class="btn btn-info btn-lg" [disabled]="!nameTemplate" (click)="sendToFirebase()">Enviar a firebase</button>
+    </div>
+    <div class="col-sm col-md col-lg-4">
+      <button type="button" class="btn btn-info btn-lg" [disabled]="!nameTemplate" (click)="sendToFirebase(); downloadTemplate() ">Enviar y descargar</button>
+    </div>
   </div>
 </div>
 

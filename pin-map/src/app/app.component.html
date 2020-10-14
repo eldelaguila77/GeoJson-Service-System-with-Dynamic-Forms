@@ -1,11 +1,17 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<nav class="navbar navbar-light bg-light">
-  <a class="navbar-brand" href="#">
-    <img src="https://getbootstrap.com/docs/4.4/assets/brand/bootstrap-solid.svg" width="30" height="30" alt="">
-    Bootstrap
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#/home">
+    <img src="../assets/img/logo-map.png" width="30" height="30" alt="">
+    Sistema de servicios de GeoJSON para la captura de datos
   </a>
-  <button type="button" class="btn btn-info" 
-        (click)="openModal(template)">Create template modal</button>
+  <!--<button type="button" class="btn btn-info" 
+        (click)="openModal(template)">Create template modal</button>-->
+  <div [hidden]="!user" class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div [hidden]="!user" class="navbar-nav">
+      <a class="nav-link active" href="home">| Inicio <span class="sr-only">(current)</span></a>
+      <a class="nav-link" href="form-creator" tabindex="-1">| Crear plantilla</a>
+    </div>
+  </div>
   <button [hidden]="!user" type="button" class="btn btn-danger" 
         (click)="logout()">Cerrar sesión</button>
 </nav>

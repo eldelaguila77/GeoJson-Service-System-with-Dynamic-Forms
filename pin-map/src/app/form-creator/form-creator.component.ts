@@ -4,7 +4,10 @@ import { FormGenerator, OptsDrop, OptsRadio, OptsCheckbox } from '../services/fo
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { FirestoreService } from '../services/firestore/firestore.service'
+import { AngularFireAuth } from '@angular/fire/auth';
 import { Subscription } from 'rxjs';
+import { User } from 'firebase';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-form-creator',
@@ -27,21 +30,36 @@ export class FormCreatorComponent implements OnInit, OnDestroy {
   optsCheckDrop: OptsDrop[];
   optsCheckbox: OptsCheckbox[] = [];
   checkSubscription$: Subscription;
-
+  nameTemplate: string;
+  alertFlag: boolean;
+  user: User
   constructor(
     private formGeneratorService: FormGeneratorService,
     private readonly bsModalService: BsModalService,
-    private firestoreService: FirestoreService
+    private firestoreService: FirestoreService,
+    private afAuth: AngularFireAuth,
+    private router: Router,
   ) {
     this.formCreator = {} as FormGenerator;
     this.form = [] as FormGenerator[];
     this.alert = false;
+    this.nameTemplate = '';
+    this.alertFlag = false;
   }
 
   ngOnInit() {
-    this.typeArray = this.formGeneratorService.getFieldsType() as string[];
-    this.requiredArray = [true, false] as boolean[];
-    // this.loadForm()
+    this.afAuth.user.subscribe(user => {
+      if (user){
+        console.log('user1: ', user)
+        
+        this.typeArray = this.formGeneratorService.getFieldsType() as string[];
+        this.requiredArray = [true, false] as boolean[];
+        // this.loadForm()
+        this.user = user;
+      } else {
+        this.router.navigate(['/login']);
+      }
+    })
   }
 
   addField() {
@@ -65,18 +83,37 @@ export class FormCreatorComponent implements OnInit, OnDestroy {
   //   console.log('formulario: ', this.form)
   // }
 
-  sendToFirebase() {
-    const send = this.firestoreService.create('prueba', {form: this.form})
+  async sendToFirebase() {
+    const payload = {form: this.form, nameTemplate:  this.nameTemplate, created_at: new Date(), created_by: this.user.uid}
+    const send = await this.firestoreService.create('templates', payload)
     console.log('formulario enviado', send)
+    this.form = [] as FormGenerator[];
+    this.nameTemplate = '';
+    this.alertFlag = true;
+    setTimeout(() => {
+      this.alertFlag = false;
+    }, 3000)
   }
 
   downloadTemplate() {
+    const payload = {form: this.form, nameTemplate:  this.nameTemplate, created_at: new Date(), created_by: this.user.uid}
     const dlAnchorElem = document.createElement('a');
     document.body.appendChild(dlAnchorElem);
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(this.form));
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(payload));
     dlAnchorElem.setAttribute('href', dataStr);
-    dlAnchorElem.setAttribute('download', 'scene.json');
+    dlAnchorElem.setAttribute('download', this.nameTemplate + '.json');
     dlAnchorElem.click();
+    this.form = [] as FormGenerator[];
+    this.nameTemplate = '';
+    this.alertFlag = true;
+    setTimeout(() => {
+      this.alertFlag = false;
+    }, 3000)
+  }
+
+  sendAndDownload() {
+    this.sendToFirebase();
+    this.downloadTemplate();
   }
 
   openModal(template: TemplateRef<any>) {
