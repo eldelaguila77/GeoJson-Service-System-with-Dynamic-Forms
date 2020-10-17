@@ -13,6 +13,8 @@ export interface FormGenerator {
 }
 
 export interface Payload {
+  created_at: Date|null;
+  created_by: string|null;
   fieldName: string;
   value: any;
   geoJson?: FeatureGeoJSON

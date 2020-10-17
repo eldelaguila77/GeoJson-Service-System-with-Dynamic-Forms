@@ -16,7 +16,7 @@ export class FormGeneratorService {
       'Select',
       'Radio',
       'Checkbox',
-      'File',
+      //'File',
       'Text',
       'Email',
       'Tel',

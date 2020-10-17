@@ -226,7 +226,6 @@ export class LoadFormComponent implements OnInit, AfterViewInit, OnChanges {
           this.payload[objKey.toString().toLowerCase()] = Object.values(this.form[i].carga)[0];
         }
       }
-      
     }
 
     this.pruebaItems.forEach((obj, index) => {
@@ -247,7 +246,8 @@ export class LoadFormComponent implements OnInit, AfterViewInit, OnChanges {
     setTimeout(() => {
       this.alertFlag = false;
     }, 3000)
-    this.formTrue.reset()
+    //this.formTrue.reset()
+    this.clearForm();
   }
 
   downloadForm() {
@@ -262,7 +262,19 @@ export class LoadFormComponent implements OnInit, AfterViewInit, OnChanges {
     setTimeout(() => {
       this.alertFlag = false;
     }, 3000)
-    this.formTrue.reset()
+    //this.formTrue.reset()
+    this.clearForm();
+  }
+
+  clearForm() {
+    for(const item of this.formLoaded) {
+      if( item.fieldType !== 'GeoPolygon'){
+        for( let i = 0; i < this.form.length; i ++) {
+          console.log('limpiando: ', this.form[i])
+          this.form[i].carga[item.fieldName] = null;
+        }
+      }
+    }
   }
 
   sendAndDownload() {

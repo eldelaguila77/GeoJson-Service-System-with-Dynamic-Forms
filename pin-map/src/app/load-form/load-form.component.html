@@ -50,7 +50,7 @@
               <br />
               <div class="form-group" *ngFor="let c of field.optionsCheck">
                 <label [for]="field.fieldName">{{c.label}}</label>
-                <input type="checkbox" class="form-control" [id]="c.val" [ngModelOptions]="{standalone: true}" [name]="field.fieldName">
+                <input type="checkbox" class="form-control" [id]="c.val" [(ngModel)]="form[i].carga[field.fieldName]" [ngModelOptions]="{standalone: true}" [name]="field.fieldName">
               </div>
             </div>
           </fieldset>
@@ -69,6 +69,26 @@
           <div class="form-group" *ngIf="field.fieldType === 'Email'">
             <label [for]="field.fieldName">{{field.fieldLabel}}</label>
             <input [type]="'email'" class="form-control" [id]="field.fieldName" [(ngModel)]="form[i].carga[field.fieldName]" [ngModelOptions]="{standalone: true}" [name]="form[i].carga[field.fieldName]" [required]="field.fieldRequired">
+          </div>
+
+          <div class="form-group" *ngIf="field.fieldType === 'Tel'">
+            <label [for]="field.fieldName">{{field.fieldLabel}}</label>
+            <input [type]="'tel'" class="form-control" [id]="field.fieldName" [(ngModel)]="form[i].carga[field.fieldName]" [ngModelOptions]="{standalone: true}" [name]="form[i].carga[field.fieldName]" [required]="field.fieldRequired">
+          </div>
+
+          <div class="form-group" *ngIf="field.fieldType === 'Number'">
+            <label [for]="field.fieldName">{{field.fieldLabel}}</label>
+            <input [type]="'number'" class="form-control" [id]="field.fieldName" [(ngModel)]="form[i].carga[field.fieldName]" [ngModelOptions]="{standalone: true}" [name]="form[i].carga[field.fieldName]" [required]="field.fieldRequired">
+          </div>
+
+          <div class="form-group" *ngIf="field.fieldType === 'Password'">
+            <label [for]="field.fieldName">{{field.fieldLabel}}</label>
+            <input [type]="'password'" class="form-control" [id]="field.fieldName" [(ngModel)]="form[i].carga[field.fieldName]" [ngModelOptions]="{standalone: true}" [name]="form[i].carga[field.fieldName]" [required]="field.fieldRequired">
+          </div>
+
+          <div class="form-group" *ngIf="field.fieldType === 'Textarea'">
+            <label [for]="field.fieldName">{{field.fieldLabel}}</label>
+            <textarea rows="3" class="form-control" [id]="field.fieldName" [(ngModel)]="form[i].carga[field.fieldName]" [ngModelOptions]="{standalone: true}" [name]="form[i].carga[field.fieldName]" [required]="field.fieldRequired"></textarea>
           </div>
 
           <div class="card" *ngIf="field.fieldType === 'GeoPolygon'" style="margin-bottom: 2em;">
@@ -101,7 +121,7 @@
           </div>
         </div>
         <hr/>
-        <div class="row" [hidden]="!payload?.created_at" style="margin-bottom: 15%;">
+        <div class="row" [hidden]="!payload.created_at" style="margin-bottom: 15%;">
           <div class="col-sm col-md col-lg-4" style="margin-bottom: 3%;">
             <button type="button" class="btn btn-info btn-lg" (click)="downloadForm()">Descargar</button>
           </div>
